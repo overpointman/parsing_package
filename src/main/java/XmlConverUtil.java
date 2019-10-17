@@ -8,7 +8,7 @@ import org.dom4j.io.XMLWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,8 +19,10 @@ import java.util.Map;
  **/
 public class XmlConverUtil {
 
+    static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\result_call.xml";
+
     public static void main(String[] args) throws DocumentException, IOException {
-        String input = FileTool.readStringFromFile("C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\test.xml", "UTF-8");
+        String input = FileTool.readStringFromFile(FILE_PATH, "UTF-8");
         Document document = DocumentHelper.parseText(input);
         Map domToMap = DomToMap(document);
         System.out.println("xml to map:" + domToMap);
@@ -90,7 +92,7 @@ public class XmlConverUtil {
      */
     public static Map DomToMap(Document document) {
         Element rootElement = document.getRootElement();
-        Map<String, Object> map = new HashMap();
+        Map<String, Object> map = new LinkedHashMap();
         ElementToMap(rootElement, map);
         return map;
     }
@@ -109,7 +111,7 @@ public class XmlConverUtil {
             }
             return element.getTextTrim();
         } else {
-            Map<String, Object> map2 = new HashMap();
+            Map<String, Object> map2 = new LinkedHashMap();
             if (null != map) {
                 map.put(element.getName(), map2);
             }

@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class Xml2MapTool {
     public static void main(String[] args) {
-        String input = FileTool.readStringFromFile("C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\test.xml", "UTF-8");
+        String input = FileTool.readStringFromFile("C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\request_call.xml", "UTF-8");
         Map<String, Object> map = xml2map(input);
         System.out.println("最终生成的map如下:\n" + map);
     }

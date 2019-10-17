@@ -1,0 +1,27 @@
+<data>
+    <request>
+        <request_no>test</request_no>
+        <patient_type>test</patient_type>
+        <org_code>test</org_code>
+        <system_source>test</system_source>
+        <cancel_flag>0</cancel_flag>
+    </request>
+    <request_details>
+        <detail>
+            <request_no>test</request_no>
+            <patient_type>test</patient_type>
+            <item_serial_no>test</item_serial_no>
+            <org_code>test</org_code>
+            <system_source>test</system_source>
+            <cancel_flag>0</cancel_flag>
+        </detail>
+        <detail>
+            <request_no>test</request_no>
+            <patient_type>test</patient_type>
+            <item_serial_no>test</item_serial_no>
+            <org_code>test</org_code>
+            <system_source>test</system_source>
+            <cancel_flag>0</cancel_flag>
+        </detail>
+    </request_details>
+</data>

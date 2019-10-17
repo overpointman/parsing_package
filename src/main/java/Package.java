@@ -21,10 +21,10 @@ import java.util.Map;
  **/
 public class Package {
 
-    private static final String xmlName = "test.xml";
+    private static final String xmlName = "request_call.xml";
 
     public static void main(String[] args) throws URISyntaxException {
-        URL url = Package.class.getClassLoader().getResource("test.xml");
+        URL url = Package.class.getClassLoader().getResource("request_call.xml");
         Map<String, Object> map = multilayerXmlToMap(readFileByBytes(url.toURI()).trim());
         System.out.println(multilayerMapToXml(map, false));
     }

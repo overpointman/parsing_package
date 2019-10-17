@@ -22,7 +22,7 @@ import java.util.Map;
 public class XmlUtils {
     public static void main(String[] args) throws IOException, DocumentException, URISyntaxException, ClassNotFoundException {
         SAXReader reader = new SAXReader();
-        URL url = Package.class.getClassLoader().getResource("test.xml");
+        URL url = Package.class.getClassLoader().getResource("request_call.xml");
         String str = Package.readFileByBytes(url.toURI()).trim();
         Document doc = DocumentHelper.parseText(str);
         //System.out.println(doc.asXML());
