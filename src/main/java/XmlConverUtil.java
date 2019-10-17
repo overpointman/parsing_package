@@ -20,12 +20,14 @@ import java.util.Map;
  **/
 public class XmlConverUtil {
 
-    public static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\result_call.xml";
+    public static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\";
+
+    public static final String FILE_NAME = FILE_PATH + "main_exam_call.xml";
 
     public static final String BEAN_PATH = "bean.";
 
     public static void main(String[] args) throws DocumentException, IOException {
-        String input = FileTool.readStringFromFile(FILE_PATH, "UTF-8");
+        String input = FileTool.readStringFromFile(FILE_NAME, "UTF-8");
         Document document = DocumentHelper.parseText(input);
         Map domToMap = DomToMap(document);
         System.out.println("xml to map:" + domToMap);
