@@ -4,6 +4,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
+import utils.FileTool;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -19,7 +20,9 @@ import java.util.Map;
  **/
 public class XmlConverUtil {
 
-    static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\result_call.xml";
+    public static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\result_call.xml";
+
+    public static final String BEAN_PATH = "bean.";
 
     public static void main(String[] args) throws DocumentException, IOException {
         String input = FileTool.readStringFromFile(FILE_PATH, "UTF-8");
@@ -137,4 +140,43 @@ public class XmlConverUtil {
             return map2;
         }
     }
+
+    public static boolean isPresent(String name) {
+        try {
+            Thread.currentThread().getContextClassLoader().loadClass(BEAN_PATH + name);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static Class<?> getClassInstance(String className) {
+        try {
+            if (isPresent(className))
+                return Class.forName(BEAN_PATH + className);
+            else return null;
+        } catch (ClassNotFoundException e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * xml转换成JavaBean
+     * @param xml
+     * @param c
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T converyToJavaBean(String xml, Class<T> c) {
+        T t = null;
+        try {
+            t = (T) Xml2BeanUtils.xmlStrToBean(xml, c);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return t;
+    }
+
+
 }
