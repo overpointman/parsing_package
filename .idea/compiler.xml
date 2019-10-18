@@ -13,4 +13,7 @@
       <module name="parsing_package" target="6" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="GENERATE_NO_WARNINGS" value="true" />
+  </component>
 </project>

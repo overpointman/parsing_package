@@ -8,6 +8,9 @@ import utils.FileTool;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,28 +25,27 @@ public class XmlConverUtil {
 
     public static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\";
 
-    public static final String FILE_NAME = FILE_PATH + "main_exam_call.xml";
+    public static final String FILE_NAME = FILE_PATH + "result_call.xml";
 
     public static final String BEAN_PATH = "bean.";
 
-    public static void main(String[] args) throws DocumentException, IOException {
-        String input = FileTool.readStringFromFile(FILE_NAME, "UTF-8");
-        Document document = DocumentHelper.parseText(input);
-        Map domToMap = DomToMap(document);
+    public static void main(String[] args) throws DocumentException, IOException, IllegalAccessException, InstantiationException {
+        String xml = FileTool.readStringFromFile(FILE_NAME, "UTF-8");
+        List domToMap = DomToMap(xml);
         System.out.println("xml to map:" + domToMap);
         String mapToDom = MapToDom(domToMap);
         System.out.println("map to xml:" + mapToDom);
     }
 
-
     /**
      * map 转 XML Document
-     * @param map map的key是xml的标签<>名，val是标签下的内容
+     * @param list map的key是xml的标签<>名，val是标签下的内容
      * @return
      */
-    public static String MapToDom(Map map) throws IOException {
+    public static String MapToDom(List list) throws IOException, DocumentException {
+        Map map = new LinkedHashMap();
+        map.put("data", list.get(0));
         Document document = DocumentHelper.createDocument();
-        System.out.println(map.keySet().iterator().next().toString());
         String rootName = map.keySet().iterator().next().toString();
         Element root = document.addElement(rootName);
         MapToElement(root, (Map<String, ?>) map.get(rootName));
@@ -61,7 +63,7 @@ public class XmlConverUtil {
      * @param map
      * @return
      */
-    private static void MapToElement(Element root, Map<String, ?> map) {
+    public static void MapToElement(Element root, Map<String, ?> map) throws DocumentException {
         if (null == map) {
             return;
         }
@@ -74,20 +76,48 @@ public class XmlConverUtil {
                 MapToElement(element, (Map<String, ?>) en.getValue());
             } else if (en.getValue() instanceof List) {
                 List<?> value = (List<?>) en.getValue();
+                boolean isPresents = isPresent(getFirstKeyOrNull(map));
                 for (Object obj : value) {
                     Element element = root.addElement(en.getKey());
-                    if (obj instanceof Map) {
-                        MapToElement(element, (Map<String, ?>) obj);
+                    if (isPresents) {
+                        String s = getDocument(obj);
+                        Document document = DocumentHelper.parseText(s);
+                        for (Element el : (List<Element>) document.getRootElement().elements()) {
+                            Element typeElement1 = element.addElement(el.getName());
+                            typeElement1.setText(el.getText());//添加节点内容
+                        }
                     } else {
-                        element.add(DocumentHelper.createText(obj.toString()));
+                        if (obj instanceof Map) {
+                            MapToElement(element, (Map<String, ?>) obj);
+                        } else {
+                            element.add(DocumentHelper.createText(obj.toString()));
+                        }
                     }
                 }
             } else {
                 Element element = root.addElement(en.getKey());
-                element.add(DocumentHelper.createText(en.getValue().toString()));
+                if (isPresent(en.getKey())) {
+                    String s = getDocument(en.getValue());
+                    Document document = DocumentHelper.parseText(s);
+                    for (Element el : (List<Element>) document.getRootElement().elements()) {
+                        Element typeElement1 = element.addElement(el.getName());
+                        typeElement1.setText(el.getText());//添加节点内容
+                    }
+                } else {
+                    element.add(DocumentHelper.createText(en.getValue().toString()));
+                }
             }
         }
-        return;
+    }
+
+    /**
+     * document 转 Map
+     * @param xml
+     * @return
+     */
+    public static List DomToMap(String xml) throws DocumentException, InstantiationException, IllegalAccessException {
+        Document document = DocumentHelper.parseText(xml);
+        return DomToMap(document);
     }
 
     /**
@@ -95,11 +125,13 @@ public class XmlConverUtil {
      * @param document
      * @return
      */
-    public static Map DomToMap(Document document) {
+    public static List DomToMap(Document document) throws IllegalAccessException, InstantiationException {
         Element rootElement = document.getRootElement();
         Map<String, Object> map = new LinkedHashMap();
         ElementToMap(rootElement, map);
-        return map;
+        List list = new ArrayList();
+        list.add(getFirstValueOrNull(map));
+        return list;
     }
 
     /**
@@ -108,7 +140,7 @@ public class XmlConverUtil {
      * @param map
      * @return
      */
-    private static Object ElementToMap(Element element, Map<String, Object> map) {
+    public static Object ElementToMap(Element element, Map<String, Object> map) throws InstantiationException, IllegalAccessException {
         List<Element> elements = element.elements();
         if (elements.size() == 0) {
             if (null != map) {
@@ -118,41 +150,74 @@ public class XmlConverUtil {
         } else {
             Map<String, Object> map2 = new LinkedHashMap();
             if (null != map) {
-                map.put(element.getName(), map2);
+                if (!(element.getName().equals(getFirstKeyOrNull(map)))) {
+                    map.put(element.getName(), map2);
+                }
             }
             String repetitionName = "";
             for (Element element2 : elements) {
-                if (repetitionName.equals(element2.getName())) {
+                String currentName = element2.getName();
+                if (repetitionName.equals(currentName)) {
                     // 第二次以上 包含这个key了 直接添加到List
                     List list = (List) map2.get(repetitionName);
-                    list.add(ElementToMap(element2, null));
-                } else if (map2.containsKey(element2.getName())) {
+                    if (isPresent(currentName)) {
+                        list.add(Xml2BeanUtils.xmlStrToBean(element2.asXML(), getClassInstance(currentName)));
+                    } else {
+                        list.add(ElementToMap(element2, null));
+                    }
+                } else if (map2.containsKey(currentName)) {
                     // 第二次 包含这个key了需要改成List
-                    repetitionName = element2.getName();
+                    repetitionName = currentName;
                     Object remove = map2.remove(repetitionName);
                     List list = new ArrayList();
                     list.add(remove);
-                    list.add(ElementToMap(element2, null));
-                    map2.put(element2.getName(), list);
+                    if (isPresent(currentName)) {
+                        list.add(Xml2BeanUtils.xmlStrToBean(element2.asXML(), getClassInstance(currentName)));
+                        map2.put(currentName, list);
+                    } else {
+                        list.add(ElementToMap(element2, null));
+                        map2.put(currentName, list);
+                    }
                 } else {
                     // 没有这个key
-                    ElementToMap(element2, map2);
+                    if (isPresent(currentName)) {
+                        map2.put(currentName, Xml2BeanUtils.xmlStrToBean(element2.asXML(), getClassInstance(currentName)));
+                        ElementToMap(element2, map2);
+                    } else {
+                        ElementToMap(element2, map2);
+                    }
                 }
             }
             return map2;
         }
     }
 
-    public static boolean isPresent(String name) {
+    /**
+     * 查询当前是否有这个bean
+     * @param className
+     * @return java.lang.Class<?>
+     * @throws
+     * @author yuntian 317526763@qq.com
+     * @date 2019/10/18 09:24
+     **/
+    public static boolean isPresent(String className) {
         try {
-            Thread.currentThread().getContextClassLoader().loadClass(BEAN_PATH + name);
+            Thread.currentThread().getContextClassLoader().loadClass(BEAN_PATH + className);
             return true;
         } catch (ClassNotFoundException e) {
             return false;
         }
     }
 
-    public static Class<?> getClassInstance(String className) {
+    /**
+     * 获取当前类的实例
+     * @param className
+     * @return java.lang.Class<?>
+     * @throws
+     * @author yuntian 317526763@qq.com
+     * @date 2019/10/18 09:25
+     **/
+    public static Class getClassInstance(String className) {
         try {
             if (isPresent(className))
                 return Class.forName(BEAN_PATH + className);
@@ -164,21 +229,71 @@ public class XmlConverUtil {
     }
 
     /**
-     * xml转换成JavaBean
-     * @param xml
-     * @param c
+     * 获取map中第一个数据值
+     * @param map 数据源
      * @return
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T converyToJavaBean(String xml, Class<T> c) {
-        T t = null;
+    public static Object getFirstValueOrNull(Map<String, ?> map) {
+        Object obj = null;
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            obj = entry.getValue();
+            if (obj != null) {
+                break;
+            }
+        }
+        return obj;
+    }
+
+    /**
+     * 获取map中第一个key
+     * @param map 数据源
+     * @return
+     */
+    public static String getFirstKeyOrNull(Map<String, ?> map) {
+        String obj = null;
+        for (Map.Entry<String, ?> entry : map.entrySet()) {
+            obj = entry.getKey();
+            if (obj != null) {
+                break;
+            }
+        }
+        return obj;
+    }
+
+    /**
+     * 将对象转换成xml
+     * @param b
+     * @return org.dom4j.Document
+     * @throws
+     * @author yuntian 317526763@qq.com
+     * @date 2019/10/18 10:56
+     **/
+    public static String getDocument(Object b) {
+        Document document = DocumentHelper.createDocument();
         try {
-            t = (T) Xml2BeanUtils.xmlStrToBean(xml, c);
+// 创建根节点元素
+            Element root = document.addElement(b.getClass().getSimpleName());
+            Field[] field = b.getClass().getDeclaredFields(); // 获取实体类b的所有属性，返回Field数组
+            for (int j = 0; j < field.length; j++) { // 遍历所有有属性
+                String name = field[j].getName(); // 获取属属性的名字
+                if (!name.equals("serialVersionUID")) {//去除串行化序列属性
+                    String getsetname = name.substring(0, 1).toUpperCase()
+                            + name.substring(1); // 将属性的首字符大写，方便构造get，set方法
+                    Method m = b.getClass().getMethod("get" + getsetname);
+                    String propertievalue;
+                    if (field[j].getType().toString().contains("Date")) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        propertievalue = sdf.format(m.invoke(b));// 获取属性值
+                    } else {
+                        propertievalue = (String) m.invoke(b);// 获取属性值
+                    }
+                    Element propertie = root.addElement(name);
+                    propertie.setText(propertievalue);
+                }
+            }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        return t;
+        return document.getRootElement().asXML();
     }
-
-
 }

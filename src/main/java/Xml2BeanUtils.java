@@ -1,9 +1,15 @@
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.Converter;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,16 +24,41 @@ public class Xml2BeanUtils {
     /**
      * xml字符串转换成bean对象
      * @param xmlStr xml字符串
-     * @param clazz  待转换的class
+     * @param entity 待转换的class
      * @return 转换后的对象
      */
-    public static Object xmlStrToBean(String xmlStr, Class clazz) {
-        Object obj = null;
+    public static Object xmlStrToBean(String xmlStr, Class<?> entity) throws IllegalAccessException, InstantiationException {
+        Object obj = entity.newInstance();
         try {
             // 将xml格式的数据转换成Map对象
             Map<String, Object> map = xmlStrToMap(xmlStr);
+            //对时间类型进行修改
+            ConvertUtils.register(new Converter() {
+                @SuppressWarnings("rawtypes")
+                @Override
+                public Object convert(Class arg0, Object arg1) {
+                    //System.out.println("注册字符串转换为date类型转换器");
+                    if (arg1 == null) {
+                        return null;
+                    }
+                    if (!(arg1 instanceof String)) {
+                        throw new ConversionException("只支持字符串转换 !");
+                    }
+                    String str = (String) arg1;
+                    if (str.trim().equals("")) {
+                        return null;
+                    }
+                    SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    try {
+                        return sd.parse(str);
+                    } catch (ParseException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }, java.util.Date.class);
             //将map对象的数据转换成Bean对象
-            obj = mapToBean(map, clazz);
+            BeanUtils.populate(obj, map);
+            //obj = mapToBean(map, cls);
         } catch (Exception e) {
             e.printStackTrace();
         }
