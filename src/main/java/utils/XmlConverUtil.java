@@ -1,10 +1,11 @@
+package utils;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import utils.FileTool;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -22,20 +23,7 @@ import java.util.Map;
  * @date 2019/10/16 16:11
  **/
 public class XmlConverUtil {
-
-    public static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\";
-
-    public static final String FILE_NAME = FILE_PATH + "result_call.xml";
-
     public static final String BEAN_PATH = "bean.";
-
-    public static void main(String[] args) throws DocumentException, IOException, IllegalAccessException, InstantiationException {
-        String xml = FileTool.readStringFromFile(FILE_NAME, "UTF-8");
-        List domToMap = DomToMap(xml);
-        System.out.println("xml to map:" + domToMap);
-        String mapToDom = MapToDom(domToMap);
-        System.out.println("map to xml:" + mapToDom);
-    }
 
     /**
      * map 转 XML Document
