@@ -17,7 +17,7 @@ public class Test {
 
     public static final String FILE_PATH = "C:\\Users\\Administrator\\Desktop\\parsing_package\\src\\main\\resources\\";
 
-    public static final String FILE_NAME = FILE_PATH + "result_call.xml";
+    public static final String FILE_NAME = FILE_PATH + "main_exam_call.xml";
 
     public static void main(String[] args) throws DocumentException, IOException, IllegalAccessException, InstantiationException {
         String xml = FileTool.readStringFromFile(FILE_NAME, "UTF-8");
