@@ -90,23 +90,6 @@
             <tip>null</tip>
             <other>null</other>
         </resultdetail>
-        <resultdetail>
-            <result_detail_id>test</result_detail_id>
-            <org_code>test</org_code>
-            <system_source>test</system_source>
-            <org_name>test</org_name>
-            <patient_id>test</patient_id>
-            <visit_id>test</visit_id>
-            <portfolio_code>test</portfolio_code>
-            <portfolio_name>test</portfolio_name>
-            <detail_item_name>test</detail_item_name>
-            <detail_item_name2>test</detail_item_name2>
-            <checkup_result>test</checkup_result>
-            <unit>null</unit>
-            <reference_range>null</reference_range>
-            <tip>null</tip>
-            <other>null</other>
-        </resultdetail>
     </results>
     <deptreports>
         <deptreport>

@@ -16,6 +16,7 @@ public class FileTool {
      * @author King 金剑波
      */
     public static String readStringFromFile(String filePath, String encoding) {
+
         File file = new File(filePath);
         //System.out.println("文件 " + filePath + "存在与否?: " + file.exists());
         String tempLine = null;
@@ -24,7 +25,7 @@ public class FileTool {
 //        FileReader fr = null;//way2
         StringBuilder sb = new StringBuilder();
         try {
-            if (file.exists()) {
+//            if (file.exists()) {
                 isr = new InputStreamReader(new FileInputStream(file), encoding);//way1:
 //                fr = new FileReader(file);//way2
                 BufferedReader br = new BufferedReader(isr);//way1:
@@ -35,12 +36,15 @@ public class FileTool {
                     tempLine = br.readLine();
                 }
                 retStr = sb.toString();
-            }
+//            }
         } catch (UnsupportedEncodingException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         } catch (IOException e) {
+            System.out.println(e.getMessage());
             e.printStackTrace();
         } finally {
             try {
@@ -54,7 +58,6 @@ public class FileTool {
         //System.out.println(retStr);
         return retStr;
     }
-
 
     /**
      * @param filePath 文件绝对路径
