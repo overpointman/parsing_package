@@ -1,10 +1,13 @@
 package utils;
 
+import org.apache.commons.io.FileUtils;
 import org.dom4j.DocumentException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +20,16 @@ public class XmlConverUtilTest {
 
     List domToMap;
     Map<String, String> tableName;
-    String xml = FileTool.readStringFromFile(FILE_NAME, "UTF-8");
+
+    String xml = "";
     long startTime;
     long endTime;
 
     @Before
-    public void before() {
+    public void before() throws IOException {
+        //添加测试数据
+        xml = FileUtils.readFileToString(new File(FILE_NAME), "UTF-8");
+
         tableName = new LinkedHashMap<String, String>();
         tableName.put("request", "mris_main");
         tableName.put("detail", "mris_detail");
