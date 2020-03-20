@@ -23,13 +23,14 @@ import java.util.StringTokenizer;
 
 /**
  * @author jiafeng
- *
+ * <p>
  * xpath 工具类
- *
  */
 public class XpathUtil {
     private static XPathExpression xPathExpression;
-    // XmlConverter默认实现
+    /**
+     * XmlConverter默认实现
+     **/
     private static XmlConverter xmlConverter = new DefaultXmlConverter();
 
     private XpathUtil() {
@@ -51,7 +52,7 @@ public class XpathUtil {
             xPathExpression = XPathExpressionFactory
                     .createXPathExpression(expression);
         } else {
-            Map<String, String> namespaceMap = new HashMap<String, String>();
+            Map<String, String> namespaceMap = new HashMap<String, String>(16);
             StringTokenizer tokenizer = new StringTokenizer(namespace, ",");
             while (tokenizer.hasMoreElements()) {
                 String[] str = tokenizer.nextToken().split(":");

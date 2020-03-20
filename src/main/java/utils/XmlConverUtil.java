@@ -125,7 +125,7 @@ public class XmlConverUtil {
                 }
             } else {
                 //排除DSQL_TABLENAME的转换，避免转换后的xml出现DSQL_TABLENAME节点
-                if (en.getKey().equals("DSQL_TABLENAME") && !showDSQL) {
+                if ("DSQL_TABLENAME".equals(en.getKey()) && !showDSQL) {
                     continue;
                 } else {
                     Element el = root.addElement(en.getKey());
